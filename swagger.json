@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "IMN API - DEV",
+    "title": "IMN gateway API- DEV",
     "description": "# The REST API of IMN system\n## Overview\nThe REST APIs provide programmatic access to read and write IMN data. \nBasically, with this API you will be able to do everything like you were with your browser on https://go.imn.io !\n\nThe main features are:\n- Register and manage your account\n- Create and manage and share your stores with your friends/co-workers.\n- Import your product catalog and schedule the auto importation\n- Search the channels your want to use\n- Configure your channels for your catalogs to export your product information:\n    - cost and general settings\n    - category and columns mappings\n    - your will be able to create and manage your custom column\n    - put in place exlusion filters based on simple conditions on your product data\n    - override product values\n    - get product vision for a channel catalog scope\n- Analyze and optimize your performance of your catalogs on all yours channels with different type of reportings by day, channel, category and by product.\n- Automatize your optimisation by using rules!\n- And of course... Manage your orders harvested from all your marketplaces:\n    - Synchronize your orders in an uniformized way\n    - Get the available actions and update the order status\n- ...and more!\n\n## Authentication credentials\nTBD\n\n## Things to keep in mind\n### API Rate Limits\n- The IMN REST API is limited to 100 calls/minute.\n\n### Media type\nThe default media type for requests and responses is application/json. Where noted, some operations support other content types. If no additional content type is mentioned for a specific operation, then the media type is application/json.\n\n### Required content type\nThe required and default encoding for the request and responses is UTF8.\n\n### Required date time format\nAll our date time are formatted in ISO 8601 format: 2014-06-24T16:25:00Z.\n\n### Base URL\nThe Base URL of the IMN API Order Management REST API conforms to the following template.\n\nhttps://api.imn.io\n\nAll URLs returned by the IMN API are relative to this base URL, and all requests to the REST API must use this base URL template.\n\nYou can test our API on https://api-docs.imn.io/swagger-ui\\\nYou can contact us on [gitter, #IMN/API](https://gitter.im/IMN/API)\n",
     "version": "1.0",
     "x-logo": {
@@ -503,8 +503,8 @@
       "description": "The Offer Importation status",
       "type": "string",
       "enum": [
-        "enabled",
-        "disabled"
+        "disabled",
+        "enabled"
       ],
       "example": "enabled"
     },
@@ -572,6 +572,278 @@
           "items": {
             "$ref": "#/definitions/merchantOfferIdentifier"
           }
+        }
+      }
+    },
+    "sku": {
+      "type": "string",
+      "description": "The Stock Keeping Unit (SKU), i.e. a merchant-specific identifier for a product or service, or the product to which the offer refers. http://schema.org/sku",
+      "maxLength": 50
+    },
+    "gtin": {
+      "type": "string",
+      "description": "Global Trade Item Number (GTIN) of the item. \nSupported values:\n\n- UPC (in North America / GTIN-12) \n12-digit number like 323456789012\n8-digit UPC-E codes should be converted to 12-digit codes\n- EAN (in Europe / GTIN-13)\n13-digit number like 3001234567892\n- JAN (in Japan / GTIN-13)\n8 or 13-digit number like 49123456 or 4901234567894\n- ISBN (for books)\n10 or 13-digit number like 1455582344 or 978-1455582341. If you have both, only include the 13-digit number. ISBN-10 are deprecated and should be converted to ISBN-13\n- ITF-14 (for multipacks / GTIN-14)\n14-digit number like 10856435001702\n\nSchema.org property:\n- [Offer.gtin8](http://schema.org/gtin8)\n- [Offer.gtin12](http://schema.org/gtin12)\n- [Offer.gtin13](http://schema.org/gtin13)\n- [Offer.gtin14](http://schema.org/gtin14)\n- [Offer.isbn](http://schema.org/isbn)\n",
+      "maxLength": 50
+    },
+    "price": {
+      "x-exclude": true,
+      "type": "number",
+      "format": "decimal",
+      "description": "The offer price of a product, or of a price component when attached to PriceSpecification and its subtypes. http://schema.org/price"
+    },
+    "priceCurrency": {
+      "type": "string",
+      "description": "The offer price of a product, or of a price component when attached to PriceSpecification and its subtypes.\nUsage guidelines:\nUse the priceCurrency property (with ISO 4217 codes e.g. USD) instead of including ambiguous symbols such as $ in the value. http://schema.org/priceCurrency\n"
+    },
+    "validFrom": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The date when the item becomes valid. http://schema.org/validFrom"
+    },
+    "validThrough": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The date after when the item is not valid. For example the end of an offer, salary period, or a period of opening hours. http://schema.org/validThrough"
+    },
+    "priceSpecification": {
+      "type": "object",
+      "properties": {
+        "price": {
+          "$ref": "#/definitions/price"
+        },
+        "validFrom": {
+          "$ref": "#/definitions/validFrom"
+        },
+        "validThrough": {
+          "$ref": "#/definitions/validThrough"
+        }
+      }
+    },
+    "minPrice": {
+      "type": "number",
+      "format": "decimal",
+      "description": "The lowest price if the price is a range. http://schema.org/minPrice"
+    },
+    "deliveryLeadTime": {
+      "type": "number",
+      "format": "int16",
+      "description": "The typical delay between the receipt of the order and the goods either leaving the warehouse or being prepared for pickup, in case the delivery method is on site pickup. http://schema.org/deliveryLeadTime"
+    },
+    "inventoryLevel": {
+      "type": "number",
+      "format": "decimal",
+      "description": "The current approximate inventory level for the item or items. http://schema.org/inventoryLevel"
+    },
+    "fulfilledBy": {
+      "type": "string",
+      "description": "The marketplace in charge of the delivery on this offer."
+    },
+    "itemCondition": {
+      "type": "string",
+      "enum": [
+        "NewCondition",
+        "RefurbishedCondition",
+        "UsedAsNewCondition",
+        "UsedVeryGoodCondition",
+        "UsedGoodCondition",
+        "UsedAcceptableCondition"
+      ]
+    },
+    "merchantOfferIdentifier": {
+      "type": "object",
+      "required": [
+        "merchantCode",
+        "sku",
+        "gtin",
+        "itemCondition"
+      ],
+      "properties": {
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "sku": {
+          "$ref": "#/definitions/sku"
+        },
+        "gtin": {
+          "$ref": "#/definitions/gtin"
+        },
+        "itemCondition": {
+          "$ref": "#/definitions/itemCondition"
+        },
+        "fulfilledBy": {
+          "$ref": "#/definitions/fulfilledBy"
+        }
+      }
+    },
+    "merchantMarketplaceOfferIdentifier": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        },
+        {
+          "type": "object",
+          "required": [
+            "merchantCode",
+            "marketplaceCode",
+            "sku",
+            "gtin",
+            "itemCondition"
+          ],
+          "properties": {
+            "marketplaceCode": {
+              "$ref": "#/definitions/marketplaceCode"
+            }
+          }
+        }
+      ]
+    },
+    "merchantOfferList": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "merchantOffers"
+          ],
+          "properties": {
+            "merchantOffers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/merchantOffer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "merchantOffer": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        },
+        {
+          "type": "object",
+          "required": [
+            "merchantCode",
+            "sku",
+            "gtin",
+            "itemCondition",
+            "price",
+            "priceCurrency",
+            "deliveryLeadTime",
+            "inventoryLevel",
+            "lastUpdateUtcDate"
+          ],
+          "properties": {
+            "price": {
+              "$ref": "#/definitions/price"
+            },
+            "priceCurrency": {
+              "$ref": "#/definitions/priceCurrency"
+            },
+            "minPrice": {
+              "$ref": "#/definitions/minPrice"
+            },
+            "discount": {
+              "$ref": "#/definitions/priceSpecification"
+            },
+            "deliveryLeadTime": {
+              "$ref": "#/definitions/deliveryLeadTime"
+            },
+            "inventoryLevel": {
+              "$ref": "#/definitions/inventoryLevel"
+            },
+            "deliverySpecifications": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/deliverySpecification"
+              }
+            },
+            "lastUpdateUtcDate": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2018-02-24T14:24:35"
+            }
+          }
+        }
+      ]
+    },
+    "merchantMarketplaceOffer": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOffer"
+        },
+        {
+          "type": "object",
+          "required": [
+            "merchantCode",
+            "marketplaceCode",
+            "sku",
+            "gtin",
+            "itemCondition",
+            "price",
+            "priceCurrency",
+            "deliveryLeadTime",
+            "inventoryLevel",
+            "lastUpdateUtcDate"
+          ],
+          "properties": {
+            "marketplaceCode": {
+              "$ref": "#/definitions/marketplaceCode"
+            }
+          }
+        }
+      ]
+    },
+    "deliveryMethod": {
+      "type": "string",
+      "description": "A delivery method is a standardized procedure for transferring the product or service to the destination of fulfillment chosen by the customer. Delivery methods are characterized by the means of transportation used, and by the organization or group that is the contracting party for the sending organization or person."
+    },
+    "transportTime": {
+      "type": "number",
+      "format": "int16",
+      "description": "To compute the shipping time, we sometimes ask for the typical delay from the moment the goods are either leaving the warehouse or being prepared for pickup, in case the delivery method is on site pickup. http://schema.org/deliveryLeadTime\n"
+    },
+    "deliverySpecification": {
+      "type": "object",
+      "properties": {
+        "deliveryMethod": {
+          "$ref": "#/definitions/deliveryMethod"
+        },
+        "price": {
+          "$ref": "#/definitions/price"
+        },
+        "additionalPrice": {
+          "$ref": "#/definitions/price"
+        },
+        "transportTime": {
+          "$ref": "#/definitions/transportTime"
+        }
+      }
+    },
+    "merchantOfferNoneImportationReasonCode": {
+      "type": "string",
+      "description": "A reason code related",
+      "enum": [
+        "InvalidEAN",
+        "InvariantNotAppliable"
+      ]
+    },
+    "merchantOfferNoneImportationReason": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/merchantOfferNoneImportationReasonCode"
+        },
+        "error": {
+          "$ref": "#/definitions/userErrorMessage"
+        },
+        "propertyName": {
+          "type": "string",
+          "description": "The related property name causing the none importation of the offer"
+        },
+        "actualValue": {
+          "type": "string",
+          "description": "The actual value causing the none importation of the offer"
         }
       }
     },
