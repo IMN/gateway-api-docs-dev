@@ -47,6 +47,10 @@
     {
       "name": "Gateway API - Offers - Global",
       "x-displayName": "Global"
+    },
+    {
+      "name": "Gateway API - Orders - Global",
+      "x-displayName": "Global"
     }
   ],
   "paths": {
@@ -197,6 +201,64 @@
           }
         }
       }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/ping": {
+      "post": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Ping the status of your offer system",
+        "operationId": "PingGatewayOfferApi",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The status of the API is up!"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/{merchantCode}/events": {
+      "post": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Push a batch of merchant marketplace orders events",
+        "operationId": "PushMerchantOfferEvents",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/orderChangeEventBase"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The merchant orders changes have been saved!"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
     }
   },
   "externalDocs": {
@@ -215,16 +277,24 @@
       "tags": [
         "Gateway API - Offers - Global"
       ]
+    },
+    {
+      "name": "Gateway API - Orders",
+      "tags": [
+        "Gateway API - Orders - Global"
+      ]
     }
   ],
   "definitions": {
     "orderChangeEventBase": {
       "x-exclude": true,
       "type": "object",
+      "discriminator": "eventType",
       "required": [
         "order",
         "userId",
-        "userName"
+        "userName",
+        "eventType"
       ],
       "properties": {
         "order": {
@@ -235,6 +305,17 @@
         },
         "userName": {
           "$ref": "#/definitions/orderChangeUserName"
+        },
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "orderAccepted",
+            "orderRefused",
+            "orderShipped",
+            "orderShippedWithTrackingUrl",
+            "orderRefunded",
+            "orderCancelled"
+          ]
         }
       }
     },
