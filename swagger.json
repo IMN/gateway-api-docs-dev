@@ -1145,7 +1145,9 @@
             "eventType"
           ],
           "properties": {
-            "eventType": "string"
+            "eventType": {
+              "type": "string"
+            }
           }
         }
       ]
