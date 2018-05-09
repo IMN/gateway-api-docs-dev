@@ -207,7 +207,7 @@
         "tags": [
           "Gateway API - Orders - Global"
         ],
-        "summary": "Ping the status of your offer system",
+        "summary": "Ping the status of your order system",
         "operationId": "PingGatewayOfferApi",
         "parameters": [
           {
@@ -307,15 +307,7 @@
           "$ref": "#/definitions/orderChangeUserName"
         },
         "eventType": {
-          "type": "string",
-          "enum": [
-            "orderAccepted",
-            "orderRefused",
-            "orderShipped",
-            "orderShippedWithTrackingUrl",
-            "orderRefunded",
-            "orderCancelled"
-          ]
+          "type": "string"
         }
       }
     },
