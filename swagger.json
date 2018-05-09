@@ -1132,25 +1132,24 @@
     },
     "merchantMarketplaceEventBase": {
       "x-exclude": true,
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantMarketplaceBase"
+      "type": "object",
+      "discriminator": "eventType",
+      "required": [
+        "merchantCode",
+        "marketplaceCode",
+        "eventType"
+      ],
+      "properties": {
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
         },
-        {
-          "type": "object",
-          "discriminator": "eventType",
-          "required": [
-            "merchantCode",
-            "marketplaceCode",
-            "eventType"
-          ],
-          "properties": {
-            "eventType": {
-              "type": "string"
-            }
-          }
+        "marketplaceCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "eventType": {
+          "type": "string"
         }
-      ]
+      }
     },
     "merchantMarketplaceCredentialConfigured": {
       "x-format": "Event",
