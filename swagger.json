@@ -208,7 +208,7 @@
           "Gateway API - Orders - Global"
         ],
         "summary": "Ping the status of your order system",
-        "operationId": "PingGatewayOfferApi",
+        "operationId": "PingGatewayOrderApi",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -230,7 +230,7 @@
           "Gateway API - Orders - Global"
         ],
         "summary": "Push a batch of merchant marketplace orders events",
-        "operationId": "PushMerchantOfferEvents",
+        "operationId": "PushMerchantOrderEvents",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
