@@ -289,6 +289,50 @@
     }
   ],
   "definitions": {
+    "orderCreated": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderMarketplaceInfo"
+        }
+      ]
+    },
+    "orderUpdated": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderMarketplaceInfo"
+        }
+      ]
+    },
+    "orderMerchantInfoConfigured": {
+      "x-format": "Event",
+      "type": "object",
+      "required": [
+        "order",
+        "merchantInfo"
+      ],
+      "properties": {
+        "order": {
+          "$ref": "#/definitions/orderIdentifier"
+        },
+        "merchantInfo": {
+          "$ref": "#/definitions/orderMerchantInfo"
+        }
+      }
+    },
+    "orderMerchantInfoCleared": {
+      "x-format": "Event",
+      "type": "object",
+      "required": [
+        "order"
+      ],
+      "properties": {
+        "order": {
+          "$ref": "#/definitions/orderIdentifier"
+        }
+      }
+    },
     "orderChangeEventBase": {
       "x-exclude": true,
       "type": "object",
@@ -297,7 +341,10 @@
         "order",
         "userId",
         "userName",
-        "eventType"
+        "eventType",
+        "ipAddress",
+        "testMode",
+        "sourceType"
       ],
       "properties": {
         "order": {
@@ -311,6 +358,19 @@
         },
         "eventType": {
           "type": "string"
+        },
+        "ipAddress": {
+          "description": "The IP address who request this operation",
+          "type": "string",
+          "example": "127.0.0.1"
+        },
+        "testMode": {
+          "description": "This operation was a test",
+          "type": "boolean",
+          "example": false
+        },
+        "sourceType": {
+          "$ref": "#/definitions/operationSourceType"
         }
       }
     },
@@ -343,7 +403,10 @@
             "userId",
             "userName",
             "carrierCode",
-            "trackingNumber"
+            "trackingNumber",
+            "ipAddress",
+            "testMode",
+            "sourceType"
           ],
           "properties": {
             "carrierCode": {
@@ -370,7 +433,10 @@
             "userName",
             "carrierName",
             "trackingNumber",
-            "trackingUrl"
+            "trackingUrl",
+            "ipAddress",
+            "testMode",
+            "sourceType"
           ],
           "properties": {
             "carrierName": {
@@ -398,12 +464,12 @@
             "order",
             "userId",
             "userName",
-            "refundReason"
+            "refundReason",
+            "ipAddress",
+            "testMode",
+            "sourceType"
           ],
           "properties": {
-            "order": {
-              "$ref": "#/definitions/orderIdentifier"
-            },
             "refundReason": {
               "$ref": "#/definitions/refundReason"
             }
@@ -423,7 +489,10 @@
             "order",
             "userId",
             "userName",
-            "cancellationReason"
+            "cancellationReason",
+            "ipAddress",
+            "testMode",
+            "sourceType"
           ],
           "properties": {
             "cancellationReason": {
@@ -436,8 +505,18 @@
     "imnOrderStatus": {
       "type": "string",
       "description": "IMN order status. Unified for all marketplaces.",
-      "example": "Shipped",
-      "x-lov": "IMNOrderState"
+      "example": "shipped",
+      "x-lov": "imnOrderStatus",
+      "enum": [
+        "new",
+        "pending",
+        "inProgress",
+        "received",
+        "shipped",
+        "cancelled",
+        "closed",
+        "availableOnStore"
+      ]
     },
     "marketplaceOrderStatus": {
       "description": "The marketplace order state",
@@ -659,7 +738,7 @@
         "gtin": {
           "$ref": "#/definitions/gtin"
         },
-        "marketPlaceProductId": {
+        "marketplaceProductId": {
           "description": "The marketplace product identifier of the order item",
           "example": "MarketplaceProductId",
           "type": "string"
@@ -706,7 +785,7 @@
         "customer": {
           "$ref": "#/definitions/orderCustomer"
         },
-        "adress": {
+        "address": {
           "$ref": "#/definitions/postalAddress"
         }
       }
@@ -900,7 +979,7 @@
           "type": "string",
           "example": "2017-04-16T10:25:23Z"
         },
-        "marketPlaceChannel": {
+        "marketplaceChannel": {
           "description": "Useful to identify the origin of the order. For example in Cdiscount.",
           "type": "string",
           "example": "Cdiscount France"
@@ -1069,6 +1148,21 @@
         }
       }
     },
+    "orderChangeType": {
+      "type": "string",
+      "x-lov": "OrderChangeBusinessOperationType",
+      "example": "ship",
+      "enum": [
+        "accept",
+        "refuse",
+        "ship",
+        "shipWithTrackingUrl",
+        "refund",
+        "cancel",
+        "pickUp",
+        "restock"
+      ]
+    },
     "merchantCreated": {
       "x-format": "Event",
       "type": "object",
@@ -1144,10 +1238,7 @@
           "$ref": "#/definitions/merchantCode"
         },
         "marketplaceCode": {
-          "$ref": "#/definitions/merchantCode"
-        },
-        "eventType": {
-          "type": "string"
+          "$ref": "#/definitions/marketplaceCode"
         }
       }
     },
@@ -1193,6 +1284,10 @@
           "properties": {
             "userId": {
               "$ref": "#/definitions/userId"
+            },
+            "externalId": {
+              "type": "string",
+              "description": "If the request is coming from an external system we will keep the identifier"
             }
           }
         }
@@ -1447,7 +1542,6 @@
       "required": [
         "merchantCode",
         "userId",
-        "sourceMarketplaceCode",
         "targetMarketplacesSubscriptionRequested",
         "subscriptionRequestUtcDate",
         "salesforceSubscriptionId"
@@ -1458,9 +1552,6 @@
         },
         "userId": {
           "$ref": "#/definitions/userId"
-        },
-        "sourceMarketplaceCode": {
-          "$ref": "#/definitions/marketplaceCode"
         },
         "targetMarketplacesSubscriptionRequested": {
           "type": "array",
@@ -2591,20 +2682,20 @@
       "type": "object",
       "description": "Contains all changes for one marketplace for one merchant",
       "properties": {
-        "created": {
+        "offers": {
           "type": "array",
-          "items": {
-            "$ref": "#/definitions/merchantMarketplaceOffer"
-          }
-        },
-        "updated": {
-          "type": "array",
+          "description": "Offers that need to be created or replaced",
+          "minItems": 1,
+          "maxItems": 1000,
           "items": {
             "$ref": "#/definitions/merchantMarketplaceOffer"
           }
         },
         "deleted": {
           "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "description": "Deleted offers",
           "items": {
             "$ref": "#/definitions/merchantMarketplaceOfferIdentifier"
           }
@@ -2614,22 +2705,22 @@
     "batchMerchantOfferChanges": {
       "x-format": "Message",
       "type": "object",
-      "description": "Contains all changes",
+      "description": "Contains all changes for a merchant",
       "properties": {
-        "created": {
+        "offers": {
           "type": "array",
-          "items": {
-            "$ref": "#/definitions/merchantOffer"
-          }
-        },
-        "updated": {
-          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "description": "Offers that need to be created or replaced",
           "items": {
             "$ref": "#/definitions/merchantOffer"
           }
         },
         "deleted": {
           "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "description": "Deleted offers",
           "items": {
             "$ref": "#/definitions/merchantOfferIdentifier"
           }
@@ -2752,9 +2843,6 @@
       "allOf": [
         {
           "type": "object",
-          "required": [
-            "merchantOffers"
-          ],
           "properties": {
             "merchantOffers": {
               "type": "array",
@@ -2976,6 +3064,7 @@
       }
     },
     "pageSize": {
+      "x-exclude": true,
       "description": "Indicate the item count per page",
       "type": "integer",
       "format": "int32",
@@ -2987,6 +3076,7 @@
       "example": 100
     },
     "pageNumber": {
+      "x-exclude": true,
       "description": "Indicates the page number",
       "format": "int32",
       "type": "integer",
@@ -3150,6 +3240,7 @@
       "example": "FRA"
     },
     "currencyCode": {
+      "x-exclude": true,
       "description": "The currency code <a href=\"https://en.wikipedia.org/wiki/ISO_4217\">(ISO 4217)</a>\n",
       "type": "string",
       "pattern": "^[A-Z]{3}$",
@@ -3392,10 +3483,7 @@
           "$ref": "#/definitions/httpMethod"
         },
         "parameters": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/linkParameter3"
-          }
+          "$ref": "#/definitions/linkParameter3Types"
         },
         "urlTemplated": {
           "type": "boolean",
@@ -3412,6 +3500,22 @@
         "info": {
           "$ref": "#/definitions/infoSummaries"
         }
+      }
+    },
+    "linkParameter3Types": {
+      "x-exclude": true,
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/linkParameter3"
+      }
+    },
+    "linkParameter2Types": {
+      "x-exclude": true,
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/linkParameter2"
       }
     },
     "link2": {
@@ -3437,12 +3541,7 @@
           "$ref": "#/definitions/httpMethod"
         },
         "parameters": {
-          "type": "array",
-          "uniqueItems": true,
-          "minItems": 0,
-          "items": {
-            "$ref": "#/definitions/linkParameter2"
-          }
+          "$ref": "#/definitions/linkParameter2Types"
         },
         "info": {
           "$ref": "#/definitions/infoSummaries"
@@ -3939,6 +4038,27 @@
       "enum": [
         "ascending",
         "descending"
+      ]
+    },
+    "operationSourceType": {
+      "description": "Indicates the origin of the operation:\n* api: the operation has been done using our api directly.\n* ui: the operation has been done using our user interface. \n",
+      "type": "string",
+      "enum": [
+        "api",
+        "ui"
+      ],
+      "example": "api"
+    },
+    "processingStatus": {
+      "x-exclude": true,
+      "description": "The processing status of an operation",
+      "type": "string",
+      "enum": [
+        "none",
+        "inProgress",
+        "done",
+        "failed",
+        "aborted"
       ]
     }
   },
