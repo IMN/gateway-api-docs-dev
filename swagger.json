@@ -502,6 +502,87 @@
         }
       ]
     },
+    "orderExceptionsBase": {
+      "x-exclude": true,
+      "type": "object",
+      "required": [
+        "marketplaceCode",
+        "merchantCode",
+        "imnOrderId"
+      ],
+      "properties": {
+        "marketplaceCode": {
+          "$ref": "#/definitions/marketplaceCode"
+        },
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "imnOrderId": {
+          "$ref": "#/definitions/imnOrderId"
+        }
+      }
+    },
+    "orderNotFoundException": {
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "description": "The order '{imnOrderId}' is not found for the marketplace '{marketplaceCode}' and the merchant '{merchantCode}'\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderExceptionsBase"
+        }
+      ]
+    },
+    "orderChangeNotFoundException": {
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "description": "The order change '{correlationId}' is not found.\nOrder: '{imnOrderId}'\nMarketplace: '{marketplaceCode}' \nMerchant: '{merchantCode}'\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderExceptionsBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "marketplaceCode",
+            "merchantCode",
+            "imnOrderId",
+            "correlationId"
+          ],
+          "properties": {
+            "correlationId": {
+              "$ref": "#/definitions/correlationId"
+            }
+          }
+        }
+      ]
+    },
+    "orderChangeInProgressException": {
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "description": "There is an order change currently is progress for the '{imnOrderId}' for the marketplace '{marketplaceCode}' and the merchant '{merchantCode}'. |\nCurrent CorrelationId: '{currentCorrelationId}'\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderExceptionsBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "marketplaceCode",
+            "merchantCode",
+            "imnOrderId",
+            "currentCorrelationId"
+          ],
+          "properties": {
+            "currentCorrelationId": {
+              "$ref": "#/definitions/correlationId"
+            }
+          }
+        }
+      ]
+    },
     "imnOrderStatus": {
       "type": "string",
       "description": "IMN order status. Unified for all marketplaces.",
@@ -4062,6 +4143,153 @@
       ]
     }
   },
+  "responses": {
+    "orderNotFound": {
+      "description": "The requested order is not found.",
+      "x-exceptions": [
+        "OrderNotFoundException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "orderChangeNotFound": {
+      "description": "The requested order or correlation identifier is not found.",
+      "x-exceptions": [
+        "OrderNotFoundException",
+        "OrderChangeNotFoundException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "orderChangeProcessing": {
+      "x-exceptions": [
+        "OrderChangeProcessingException"
+      ],
+      "description": "Already processing a change request for this Order.\\\nPlease refresh your clients Order information and retry later.\n",
+      "headers": {
+        "Retry-After": {
+          "type": "integer",
+          "description": "Indicates the duration in seconds to wait to be able to make this request again"
+        }
+      },
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "GeneralError": {
+      "description": "Occurs when something goes wrong",
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "304_NotModified": {
+      "description": "The ETag sent in the http header If-None-Match did not change. So you are up to date !",
+      "headers": {
+        "Last-Modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification UTC date of the resource\\\nFor more details go to this link: https://tools.ietf.org/html/rfc7232#section-2.2\n"
+        },
+        "ETag": {
+          "type": "string",
+          "description": "ETag value to identify the current version of the resource\\\nFor more details go to this link: http://tools.ietf.org/html/rfc7232#section-2.3\n"
+        }
+      }
+    },
+    "412_PreConditionFailed": {
+      "description": "The ETag sent in the http header If-Match did not match with the current version. Please refresh the information related to this resource.",
+      "headers": {
+        "ETag": {
+          "type": "string",
+          "description": "The ETag value to identify the resource.\\\nFor more details go to this link: http://tools.ietf.org/html/rfc7232#section-2.3\n"
+        }
+      }
+    },
+    "merchantNotFound": {
+      "description": "The merchant code is not found.",
+      "x-exceptions": [
+        "MerchantCodeNotFoundException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "marketplaceNotFound": {
+      "description": "The marketplace code is not found.",
+      "x-exceptions": [
+        "MarketplaceCodeNotFoundException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "invalidMarketplaceCredential": {
+      "description": "The marketplace credential is invalid",
+      "x-exceptions": [
+        "InvalidMarketplaceCredentialException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "merchantOrMarketplaceNotFound": {
+      "description": "The merchant code or marketplace code is not found.",
+      "x-exceptions": [
+        "MarketplaceCodeNotFoundException",
+        "MerchantCodeNotFoundException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "merchantCodeAlreadyUsed": {
+      "description": "The merchant code is not available",
+      "x-exceptions": [
+        "MerchantCodeAlreadyUsedException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "invalidMerchantCode": {
+      "description": "The merchant code is different from the state",
+      "x-exceptions": [
+        "InvalidMerchantCodeException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "notOfferSourceMarketplace": {
+      "description": "The marketplace is not the offer source",
+      "x-exceptions": [
+        "NotOfferSourceMarketplaceException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "subscriptionNotAccepted": {
+      "description": "The subscription is not accepted by the marketplace",
+      "x-exceptions": [
+        "SubscriptionNotAcceptedException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/userErrorMessage"
+      }
+    },
+    "credentialNotConfigured": {
+      "description": "The credential is not configured for the marketplace",
+      "x-exceptions": [
+        "CredentialNotConfiguredException"
+      ],
+      "schema": {
+        "$ref": "#/definitions/userErrorMessage"
+      }
+    }
+  },
   "parameters": {
     "imnOrderIdParameter": {
       "description": "The IMN Order identifier",
@@ -4189,119 +4417,6 @@
       "required": true,
       "type": "string",
       "description": "The merchant code"
-    }
-  },
-  "responses": {
-    "GeneralError": {
-      "description": "Occurs when something goes wrong",
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "304_NotModified": {
-      "description": "The ETag sent in the http header If-None-Match did not change. So you are up to date !",
-      "headers": {
-        "Last-Modified": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Last modification UTC date of the resource\\\nFor more details go to this link: https://tools.ietf.org/html/rfc7232#section-2.2\n"
-        },
-        "ETag": {
-          "type": "string",
-          "description": "ETag value to identify the current version of the resource\\\nFor more details go to this link: http://tools.ietf.org/html/rfc7232#section-2.3\n"
-        }
-      }
-    },
-    "412_PreConditionFailed": {
-      "description": "The ETag sent in the http header If-Match did not match with the current version. Please refresh the information related to this resource.",
-      "headers": {
-        "ETag": {
-          "type": "string",
-          "description": "The ETag value to identify the resource.\\\nFor more details go to this link: http://tools.ietf.org/html/rfc7232#section-2.3\n"
-        }
-      }
-    },
-    "merchantNotFound": {
-      "description": "The merchant code is not found.",
-      "x-exceptions": [
-        "MerchantCodeNotFoundException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "marketplaceNotFound": {
-      "description": "The marketplace code is not found.",
-      "x-exceptions": [
-        "MarketplaceCodeNotFoundException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "invalidMarketplaceCredential": {
-      "description": "The marketplace credential is invalid",
-      "x-exceptions": [
-        "InvalidMarketplaceCredentialException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "merchantOrMarketplaceNotFound": {
-      "description": "The merchant code or marketplace code is not found.",
-      "x-exceptions": [
-        "MarketplaceCodeNotFoundException",
-        "MerchantCodeNotFoundException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "merchantCodeAlreadyUsed": {
-      "description": "The merchant code is not available",
-      "x-exceptions": [
-        "MerchantCodeAlreadyUsedException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "invalidMerchantCode": {
-      "description": "The merchant code is different from the state",
-      "x-exceptions": [
-        "InvalidMerchantCodeException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "notOfferSourceMarketplace": {
-      "description": "The marketplace is not the offer source",
-      "x-exceptions": [
-        "NotOfferSourceMarketplaceException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/errorResponseMessage"
-      }
-    },
-    "subscriptionNotAccepted": {
-      "description": "The subscription is not accepted by the marketplace",
-      "x-exceptions": [
-        "SubscriptionNotAcceptedException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/userErrorMessage"
-      }
-    },
-    "credentialNotConfigured": {
-      "description": "The credential is not configured for the marketplace",
-      "x-exceptions": [
-        "CredentialNotConfiguredException"
-      ],
-      "schema": {
-        "$ref": "#/definitions/userErrorMessage"
-      }
     }
   }
 }
