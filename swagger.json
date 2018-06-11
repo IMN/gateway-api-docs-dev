@@ -67,8 +67,23 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "The status of the API is up!"
+          "200": {
+            "description": "The status of the API is up!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
+          },
+          "503": {
+            "description": "The status of your API is down...",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -164,8 +179,23 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "The status of the API is up!"
+          "200": {
+            "description": "The status of the API is up!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
+          },
+          "503": {
+            "description": "The status of your API is down...",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -205,6 +235,35 @@
         }
       }
     },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/purge/{correlationId}": {
+      "post": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Purge existing offers",
+        "description": "This operation could will be called for the following reason:\n- the merchant wants to disable the offer publication to your marketplace and ask to purge his offers on your marketplace\n- the merchant wants to purge his existing offers before publishing his offers coming from IMN\n\nThe expected behavior by marketplace are:\n- purge existing offers of the merchant \n- notify IMN about the completion of the purge operation by calling this /marektplace/offers/v1/{marketplaceCode}/{merchantCode}/purge/{correlationId}/done|failed if the purge succeed or failed\n",
+        "operationId": "PurgeExistingOffers",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/correlationIdParameter"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The purge request has been received."
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
     "/gateway/orders/v1/{marketplaceCode}/ping": {
       "post": {
         "tags": [
@@ -218,8 +277,23 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "The status of the API is up!"
+          "200": {
+            "description": "The status of the API is up!",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
+          },
+          "503": {
+            "description": "The status of your API is down...",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/healthCheck"
+              }
+            }
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -509,6 +583,25 @@
         }
       ]
     },
+    "orderChangeCompleted": {
+      "x-format": "Event",
+      "type": "object",
+      "required": [
+        "order",
+        "status"
+      ],
+      "properties": {
+        "order": {
+          "$ref": "#/definitions/orderIdentifier"
+        },
+        "status": {
+          "$ref": "#/definitions/processingStatus"
+        },
+        "error": {
+          "$ref": "#/definitions/userErrorMessage"
+        }
+      }
+    },
     "orderExceptionsBase": {
       "x-exclude": true,
       "type": "object",
@@ -565,7 +658,7 @@
         }
       ]
     },
-    "orderChangeInProgressException": {
+    "orderChangeAlreadyInProgressException": {
       "x-format": "Exception",
       "x-transient": false,
       "x-technical": false,
@@ -1216,23 +1309,19 @@
     },
     "orderIMNInfo": {
       "type": "object",
+      "description": "The current order change correlation identifier indicates you if there is a pending order change on the marketplace side.",
       "required": [
-        "imnOrderUrl",
-        "imnLastModificationUtcDate",
-        "processing"
+        "imnLastModificationUtcDate"
       ],
       "properties": {
-        "imnOrderUrl": {
-          "$ref": "#/definitions/httpUrl"
-        },
         "imnLastModificationUtcDate": {
           "description": "The last modification UTC date done by IMN of this order",
           "format": "date-time",
           "type": "string",
           "example": "2017-04-16T10:30:23Z"
         },
-        "processing": {
-          "$ref": "#/definitions/orderProcessing"
+        "currentOrderChangeCorrelationId": {
+          "$ref": "#/definitions/correlationId"
         }
       }
     },
@@ -2300,7 +2389,7 @@
       "required": [
         "marketplaceApiCredential"
       ],
-      "description": "The marketplace credential '{marketplaceApiCredential}' is invalid\n",
+      "description": "Marketplace credentials are not recognized, please check them and try again\n",
       "properties": {
         "marketplaceApiCredential": {
           "$ref": "#/definitions/marketplaceApiCredential"
@@ -4148,6 +4237,40 @@
         "failed",
         "aborted"
       ]
+    },
+    "healthCheck": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Health check name",
+          "example": "MyDatabaseCheck"
+        },
+        "message": {
+          "type": "string",
+          "description": "Gets the status message of the check.",
+          "example": "Database connection OK"
+        },
+        "status": {
+          "$ref": "#/definitions/healthCheckStatus"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "healthCheckStatus": {
+      "type": "string",
+      "description": "Possible status values of a health check result.\n* degraded:  The check is degraded, failing but not critical\n* healthy: The check is healthy\n* ignored: The check was ignored\n* unhealthy:  The check is unhealthy\n",
+      "enum": [
+        "degraded",
+        "healthy",
+        "ignored",
+        "unhealthy"
+      ]
     }
   },
   "responses": {
@@ -4170,9 +4293,9 @@
         "$ref": "#/definitions/errorResponseMessage"
       }
     },
-    "orderChangeProcessing": {
+    "orderChangeAlreadyInProgress": {
       "x-exceptions": [
-        "OrderChangeProcessingException"
+        "OrderChangeAlreadyInProgressException"
       ],
       "description": "Already processing a change request for this Order.\\\nPlease refresh your clients Order information and retry later.\n",
       "headers": {
@@ -4322,6 +4445,14 @@
       "type": "boolean",
       "default": false,
       "x-example": false
+    },
+    "correlationIdParameter": {
+      "name": "correlationId",
+      "in": "path",
+      "type": "string",
+      "format": "CorrelationId",
+      "required": true,
+      "description": "It's the guid corresponding to the operation.\n"
     },
     "storeIdOnlyGeneralParameters": {
       "name": "storeId",
