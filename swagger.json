@@ -1416,6 +1416,10 @@
         },
         "marketplaceCode": {
           "$ref": "#/definitions/marketplaceCode"
+        },
+        "eventType": {
+          "x-exclude": true,
+          "type": "string"
         }
       }
     },
