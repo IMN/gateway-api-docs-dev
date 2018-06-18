@@ -151,7 +151,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/merchantMarketplaceEventBase"
+                "$ref": "#/definitions/merchantEventPushed"
               }
             }
           }
@@ -321,6 +321,8 @@
             "required": true,
             "schema": {
               "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
               "items": {
                 "$ref": "#/definitions/orderChangeEventBase"
               }
@@ -370,7 +372,18 @@
     }
   ],
   "definitions": {
+    "orderReceived": {
+      "x-exclude": true,
+      "x-format": "Event",
+      "description": "This event his a technical one. It is stored in the event hub before it's processed by the OrderActor.\nThe order actor will create business event like order created or updated.\nOrderReceived will be not be stored in the Event Store.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderMarketplaceInfo"
+        }
+      ]
+    },
     "orderCreated": {
+      "x-exclude": true,
       "x-format": "Event",
       "allOf": [
         {
@@ -379,6 +392,7 @@
       ]
     },
     "orderUpdated": {
+      "x-exclude": true,
       "x-format": "Event",
       "allOf": [
         {
@@ -416,44 +430,43 @@
     },
     "orderChangeEventBase": {
       "x-exclude": true,
-      "type": "object",
-      "discriminator": "eventType",
-      "required": [
-        "order",
-        "userId",
-        "userName",
-        "eventType",
-        "ipAddress",
-        "testMode",
-        "sourceType"
-      ],
-      "properties": {
-        "order": {
-          "$ref": "#/definitions/orderIdentifier"
-        },
-        "userId": {
-          "$ref": "#/definitions/userId"
-        },
-        "userName": {
-          "$ref": "#/definitions/orderChangeUserName"
-        },
-        "eventType": {
-          "type": "string"
-        },
-        "ipAddress": {
-          "description": "The IP address who request this operation",
-          "type": "string",
-          "example": "127.0.0.1"
-        },
-        "testMode": {
-          "description": "This operation was a test",
-          "type": "boolean",
-          "example": false
-        },
-        "sourceType": {
-          "$ref": "#/definitions/operationSourceType"
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "order",
+            "userId",
+            "userName",
+            "ipAddress",
+            "testMode",
+            "sourceType"
+          ],
+          "properties": {
+            "order": {
+              "$ref": "#/definitions/orderIdentifier"
+            },
+            "userId": {
+              "$ref": "#/definitions/userId"
+            },
+            "userName": {
+              "$ref": "#/definitions/orderChangeUserName"
+            },
+            "ipAddress": {
+              "description": "The IP address who request this operation",
+              "type": "string",
+              "example": "127.0.0.1"
+            },
+            "testMode": {
+              "description": "This operation was a test",
+              "type": "boolean",
+              "example": false
+            },
+            "sourceType": {
+              "$ref": "#/definitions/operationSourceType"
+            }
+          }
         }
-      }
+      ]
     },
     "orderAccepted": {
       "x-format": "Event",
@@ -602,6 +615,22 @@
         }
       }
     },
+    "orderManagementDisabledException": {
+      "description": "The merchant '{merchantCode}' has disabled the order management for marketplace '{marketplaceCode}'.\n",
+      "type": "object",
+      "required": [
+        "marketplaceCode",
+        "merchantCode"
+      ],
+      "properties": {
+        "marketplaceCode": {
+          "$ref": "#/definitions/marketplaceCode"
+        },
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        }
+      }
+    },
     "orderExceptionsBase": {
       "x-exclude": true,
       "type": "object",
@@ -630,6 +659,64 @@
       "allOf": [
         {
           "$ref": "#/definitions/orderExceptionsBase"
+        }
+      ]
+    },
+    "orderInvalidEtagException": {
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "description": "The order change cannot be applied because the '{etag}' does not match the expetected one '{expectedETag}'.\nPlease reload your order and send the latest etag to change the order.\nIf the problem persist please contact our support team.\nOrder: '{imnOrderId}'\nMarketplace: '{marketplaceCode}' \nMerchant: '{merchantCode}'\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderExceptionsBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "marketplaceCode",
+            "merchantCode",
+            "imnOrderId",
+            "invalidETag",
+            "expectedETag"
+          ],
+          "properties": {
+            "invalidETag": {
+              "$ref": "#/definitions/orderEtag"
+            },
+            "expectedETag": {
+              "$ref": "#/definitions/orderEtag"
+            }
+          }
+        }
+      ]
+    },
+    "orderChangeInvalidException": {
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "description": "The order change type '{orderChangeType}' cannot be applied because the status of the order is '{imnOrderStatus}.\nIf the problem persist please contact our support team.\nOrder: '{imnOrderId}'\nMarketplace: '{marketplaceCode}' \nMerchant: '{merchantCode}'\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/orderExceptionsBase"
+        },
+        {
+          "type": "object",
+          "required": [
+            "marketplaceCode",
+            "merchantCode",
+            "imnOrderId",
+            "orderChangeType",
+            "imnOrderStatus"
+          ],
+          "properties": {
+            "orderChangeType": {
+              "$ref": "#/definitions/orderChangeType"
+            },
+            "imnOrderStatus": {
+              "$ref": "#/definitions/imnOrderStatus"
+            }
+          }
         }
       ]
     },
@@ -1340,6 +1427,24 @@
         "restock"
       ]
     },
+    "merchantEventPushed": {
+      "x-exclude": true,
+      "type": "object",
+      "discriminator": "eventType",
+      "required": [
+        "merchantCode",
+        "eventType"
+      ],
+      "properties": {
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "eventType": {
+          "x-exclude": true,
+          "type": "string"
+        }
+      }
+    },
     "merchantCreated": {
       "x-format": "Event",
       "type": "object",
@@ -1403,25 +1508,22 @@
     },
     "merchantMarketplaceEventBase": {
       "x-exclude": true,
-      "type": "object",
-      "discriminator": "eventType",
-      "required": [
-        "merchantCode",
-        "marketplaceCode",
-        "eventType"
-      ],
-      "properties": {
-        "merchantCode": {
-          "$ref": "#/definitions/merchantCode"
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantEventPushed"
         },
-        "marketplaceCode": {
-          "$ref": "#/definitions/marketplaceCode"
-        },
-        "eventType": {
-          "x-exclude": true,
-          "type": "string"
+        {
+          "type": "object",
+          "required": [
+            "marketplaceCode"
+          ],
+          "properties": {
+            "marketplaceCode": {
+              "$ref": "#/definitions/marketplaceCode"
+            }
+          }
         }
-      }
+      ]
     },
     "merchantMarketplaceCredentialConfigured": {
       "x-format": "Event",
@@ -1939,6 +2041,39 @@
         }
       ]
     },
+    "merchantCurrencyConversionConfigured": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantEventPushed"
+        },
+        {
+          "type": "object",
+          "required": [
+            "userId",
+            "from",
+            "to",
+            "rate"
+          ],
+          "properties": {
+            "userId": {
+              "$ref": "#/definitions/userId"
+            },
+            "from": {
+              "$ref": "#/definitions/currencyCode"
+            },
+            "to": {
+              "$ref": "#/definitions/currencyCode"
+            },
+            "rate": {
+              "type": "number",
+              "format": "decimal",
+              "description": "The rate conversion to be applied from the currency to another one"
+            }
+          }
+        }
+      ]
+    },
     "createMerchant": {
       "x-format": "Command",
       "description": "When the merchant creates his account on IMN",
@@ -2442,6 +2577,76 @@
       "properties": {
         "marketplaceCode": {
           "$ref": "#/definitions/marketplaceCode"
+        }
+      }
+    },
+    "partnerHttpException": {
+      "x-exclude": true,
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "type": "object",
+      "required": [
+        "correlationId",
+        "marketplaceCode",
+        "merchantCode",
+        "logUri",
+        "httpStatus",
+        "operationName"
+      ],
+      "description": "The partner http request is in error\n",
+      "properties": {
+        "correlationId": {
+          "$ref": "#/definitions/correlationId"
+        },
+        "marketplaceCode": {
+          "$ref": "#/definitions/marketplaceCode"
+        },
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "logUri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "httpStatus": {
+          "type": "string",
+          "format": "httpStatusCode"
+        },
+        "operationName": {
+          "type": "string"
+        }
+      }
+    },
+    "partnerInvalidResponse": {
+      "x-exclude": true,
+      "x-format": "Exception",
+      "x-transient": false,
+      "x-technical": false,
+      "type": "object",
+      "required": [
+        "correlationId",
+        "marketplaceCode",
+        "merchantCode",
+        "exceptionMessage",
+        "operationName"
+      ],
+      "description": "The partner http response is invalid\n",
+      "properties": {
+        "correlationId": {
+          "$ref": "#/definitions/correlationId"
+        },
+        "marketplaceCode": {
+          "$ref": "#/definitions/marketplaceCode"
+        },
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "exceptionMessage": {
+          "type": "string"
+        },
+        "operationName": {
+          "type": "string"
         }
       }
     },
@@ -3985,6 +4190,19 @@
       "description": "The documentation related to this operation.",
       "example": "https://api-docs.imn.io/#operation/EnableChannelCatalog"
     },
+    "errorCode": {
+      "x-exclude": true,
+      "type": "string",
+      "description": "the error code. The error code can be a pattern containing the argument's name",
+      "example": "CatalogImportationAlreadyInProgress(ExecutionId currentCatalogImportationId)"
+    },
+    "cultureName": {
+      "x-exclude": true,
+      "type": "string",
+      "description": "If the error is translated, the culture name will be indicated",
+      "example": "en",
+      "x-lov": "Go2CultureName"
+    },
     "userErrorMessage": {
       "x-exclude": true,
       "type": "object",
@@ -3997,9 +4215,7 @@
           "$ref": "#/definitions/docUrl"
         },
         "code": {
-          "type": "string",
-          "description": "the error code. The error code can be a pattern containing the argument's name",
-          "example": "CatalogImportationAlreadyInProgress(ExecutionId currentCatalogImportationId)"
+          "$ref": "#/definitions/errorCode"
         },
         "message": {
           "type": "string",
@@ -4007,10 +4223,7 @@
           "example": "There is already an importation in progress: b24d0dd8-a561-478a-9b26-34f573f03527\n"
         },
         "cultureName": {
-          "type": "string",
-          "description": "If the error is translated, the culture name will be indicated",
-          "example": "en",
-          "x-lov": "Go2CultureName"
+          "$ref": "#/definitions/cultureName"
         },
         "arguments": {
           "$ref": "#/definitions/userErrorMessageArguments"
@@ -4274,6 +4487,57 @@
         "healthy",
         "ignored",
         "unhealthy"
+      ]
+    },
+    "messageBase": {
+      "x-exclude": true,
+      "type": "object",
+      "required": [
+        "messageId",
+        "correlationId"
+      ],
+      "properties": {
+        "messageId": {
+          "allOf": [
+            {
+              "x-excludeProperty": true
+            },
+            {
+              "$ref": "#/definitions/messageId"
+            }
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/definitions/correlationId"
+        },
+        "causeId": {
+          "$ref": "#/definitions/causeId"
+        }
+      }
+    },
+    "eventName": {
+      "x-exclude": true,
+      "description": "The event name",
+      "type": "string"
+    },
+    "eventBase": {
+      "x-exclude": true,
+      "allOf": [
+        {
+          "$ref": "#/definitions/messageBase"
+        },
+        {
+          "type": "object",
+          "discriminator": "eventType",
+          "required": [
+            "eventName"
+          ],
+          "properties": {
+            "eventName": {
+              "$ref": "#/definitions/eventName"
+            }
+          }
+        }
       ]
     }
   },
