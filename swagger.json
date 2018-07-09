@@ -488,6 +488,7 @@
       "allOf": [
         {
           "type": "object",
+          "discriminator": "eventName",
           "required": [
             "order",
             "userId",
@@ -518,6 +519,9 @@
             },
             "sourceType": {
               "$ref": "#/definitions/operationSourceType"
+            },
+            "eventName": {
+              "$ref": "#/definitions/eventName"
             }
           }
         }
