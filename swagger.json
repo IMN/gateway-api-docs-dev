@@ -2494,8 +2494,12 @@
             "credential": {
               "$ref": "#/definitions/marketplaceApiCredential"
             },
-            "checkCount": {
-              "type": "integer"
+            "checkedDates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "date-time"
+              }
             }
           }
         }
