@@ -214,13 +214,13 @@
         }
       }
     },
-    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/events": {
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/publications/{correlationId}/start": {
       "post": {
         "tags": [
           "Gateway API - Offers - Global"
         ],
-        "summary": "Push a batch of merchant marketplace offers events",
-        "operationId": "PushMerchantOfferEvents",
+        "summary": "Start the publication of merchant offers",
+        "operationId": "StartMerchantOffersPublication",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -229,11 +229,10 @@
             "$ref": "#/parameters/merchantCodeParameter"
           },
           {
-            "name": "request",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/batchMerchantOfferChanges"
-            }
+            "$ref": "#/parameters/correlationIdParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
           }
         ],
         "responses": {
@@ -249,14 +248,13 @@
         }
       }
     },
-    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/purge/{correlationId}": {
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/publications/{correlationId}/events": {
       "post": {
         "tags": [
           "Gateway API - Offers - Global"
         ],
-        "summary": "DRAFT - Purge existing offers",
-        "description": "DRAFT - This operation could be called for the following reason:\n- the merchant wants to disable the offer publication to your marketplace and ask to purge his offers on your marketplace\n- the merchant wants to purge his existing offers before publishing his offers coming from IMN\n\nThe expected behavior by marketplace are:\n- purge existing offers of the merchant \n- notify IMN about the completion of the purge operation by calling this /marektplace/offers/v1/{marketplaceCode}/{merchantCode}/purge/{correlationId}/done|failed if the purge succeed or failed\n",
-        "operationId": "PurgeExistingOffers",
+        "summary": "Publish merchant offers",
+        "operationId": "PublishMerchantOffers",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -266,11 +264,395 @@
           },
           {
             "$ref": "#/parameters/correlationIdParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
+              "items": {
+                "$ref": "#/definitions/merchantOfferEventBase"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The merchant offers have been received!"
+          },
+          "400": {
+            "$ref": "#/responses/offerBatchBadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/publications/{correlationId}/complete": {
+      "post": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Complete the publication of the merchant offers",
+        "operationId": "CompleteMerchantOffersPublication",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/correlationIdParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/completePublicationRequest"
+            }
           }
         ],
         "responses": {
           "204": {
-            "description": "The purge request has been received."
+            "description": "The merchant offers publication have been completed!"
+          },
+          "400": {
+            "$ref": "#/responses/offerBatchBadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/publications/{correlationId}/status": {
+      "get": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Get merchant offers publication status",
+        "operationId": "GetMerchantOffersPublicationStatus",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/correlationIdParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The publication status",
+            "schema": {
+              "$ref": "#/definitions/feedPublicationStatusResponse"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/offerBatchBadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/events": {
+      "post": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Push a batch of merchant marketplace offers events",
+        "operationId": "PushMerchantOfferEvents",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
+              "items": {
+                "$ref": "#/definitions/merchantOfferEventBase"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The merchant offers changes have been received"
+          },
+          "400": {
+            "$ref": "#/responses/offerBatchBadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/subscriptions": {
+      "post": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Subscribe to offers events",
+        "operationId": "Subscribe",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "$ref": "#/parameters/callBackUrlInQueryParameter"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Subscription created",
+            "schema": {
+              "$ref": "#/definitions/webHookSubscription"
+            }
+          },
+          "502": {
+            "description": "In case the back end of the marketplace is not ready",
+            "schema": {
+              "$ref": "#/definitions/errorResponseMessage"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/subscriptions/{subscriptionId}": {
+      "delete": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Unsubscribe to offers events",
+        "operationId": "Unsubscribe",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Unsubscription done"
+          },
+          "404": {
+            "description": "Subscription not found",
+            "schema": {
+              "$ref": "#/definitions/errorResponseMessage"
+            }
+          },
+          "502": {
+            "description": "In case the back end of the marketplace is not ready",
+            "schema": {
+              "$ref": "#/definitions/errorResponseMessage"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/reports/generate": {
+      "post": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Generate merchant offers report",
+        "operationId": "GenerateMerchantOffersReport",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The marketplace report number",
+            "schema": {
+              "$ref": "#/definitions/generateReportResponse"
+            }
+          },
+          "502": {
+            "description": "In case the back end of the marketplace is not ready",
+            "schema": {
+              "$ref": "#/definitions/errorResponseMessage"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/reports/status": {
+      "get": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Get merchant offer list",
+        "operationId": "GetMerchantOffersReportGenerationStatus",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "marketplaceReportNumber",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The marketplace report number",
+            "schema": {
+              "$ref": "#/definitions/reportGenerationStatusResponse"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/list": {
+      "get": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Get merchant offer list",
+        "operationId": "GetMerchantOfferList",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/paginationContinuationTokenQueryStringParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          },
+          {
+            "name": "marketplaceReportNumber",
+            "description": "In some case, the marketplace has to generate a report to get access to the offer list. In that case we will have to send the marketplace report number.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The merchant offer list",
+            "schema": {
+              "$ref": "#/definitions/merchantOfferPaginatedList"
+            }
+          },
+          "404": {
+            "description": "In case the page does not exists",
+            "schema": {
+              "$ref": "#/definitions/errorResponseMessage"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/{sku}": {
+      "get": {
+        "tags": [
+          "Gateway API - Offers - Global"
+        ],
+        "summary": "Get merchant offer",
+        "operationId": "GetMerchantOffer",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/skuPathParameter"
+          },
+          {
+            "$ref": "#/parameters/credentialHeaderParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The merchant offer",
+            "schema": {
+              "$ref": "#/definitions/merchantOffer"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/offerNotFound"
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -320,8 +702,8 @@
         "tags": [
           "Gateway API - Orders - Global"
         ],
-        "summary": "Push a batch of merchant marketplace orders events",
-        "operationId": "PushMerchantOrderEvents",
+        "summary": "Push a batch of merchant marketplace order change events",
+        "operationId": "PushMerchantOrderChangeEvents",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -346,6 +728,80 @@
         "responses": {
           "204": {
             "description": "The merchant orders changes have been saved!"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/{merchantCode}/list": {
+      "get": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Get order list",
+        "operationId": "GetOrderList",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/pageNumberQueryStringParameter"
+          },
+          {
+            "$ref": "#/parameters/pageSizeQueryStringParameter"
+          },
+          {
+            "name": "marketplaceLastModificationUtcDate",
+            "in": "query",
+            "type": "string",
+            "format": "DateTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The paginated order list",
+            "schema": {
+              "$ref": "#/definitions/orderMarketplaceInfoPaginatedList"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/{merchantCode}/{marketplaceOrderId}": {
+      "get": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Get order",
+        "operationId": "GetOrder",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/marketplaceOrderIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order",
+            "schema": {
+              "$ref": "#/definitions/orderMarketplaceInfo"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/orderNotFound"
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -1520,8 +1976,7 @@
           "type": "string"
         },
         "imageUrl": {
-          "$ref": "#/definitions/httpUrl",
-          "example": "http://blabla.com//das6-45.jpg"
+          "$ref": "#/definitions/httpUrl"
         },
         "merchantOfferSku": {
           "$ref": "#/definitions/sku"
@@ -1774,6 +2229,34 @@
         }
       }
     },
+    "orderMarketplaceInfoPaginatedList": {
+      "type": "object",
+      "properties": {
+        "paginationResult": {
+          "$ref": "#/definitions/paginationResult"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/orderMarketplaceInfo"
+          }
+        }
+      }
+    },
+    "orderInfoPaginatedList": {
+      "type": "object",
+      "properties": {
+        "paginationResult": {
+          "$ref": "#/definitions/paginationResult"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/orderInfo"
+          }
+        }
+      }
+    },
     "orderMarketplaceInfo": {
       "description": "Describe the basic information related to an order.",
       "type": "object",
@@ -1960,23 +2443,34 @@
     },
     "merchantOfferEventBase": {
       "x-exclude": true,
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantOffer"
+      "type": "object",
+      "discriminator": "eventType",
+      "required": [
+        "eventType"
+      ],
+      "properties": {
+        "eventType": {
+          "type": "string"
         }
-      ]
+      }
     },
     "merchantOfferReceived": {
       "x-format": "Event",
       "allOf": [
         {
           "$ref": "#/definitions/merchantOfferEventBase"
+        },
+        {
+          "$ref": "#/definitions/merchantOffer"
         }
       ]
     },
     "merchantOfferDeleted": {
       "x-format": "Event",
       "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
         {
           "$ref": "#/definitions/merchantOfferIdentifier"
         }
@@ -1985,6 +2479,9 @@
     "merchantOfferUnpublished": {
       "x-format": "Event",
       "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
         {
           "$ref": "#/definitions/merchantOfferIdentifier"
         },
@@ -2003,7 +2500,11 @@
     },
     "merchantOfferNotImported": {
       "x-format": "Event",
+      "description": "Useful for reporting to explain why this offer has not been imported. NOT USED FOR THE MOMENT.",
       "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
         {
           "$ref": "#/definitions/merchantOfferIdentifier"
         },
@@ -2069,40 +2570,6 @@
         "duplicateCount": {
           "type": "integer",
           "minimum": 2
-        }
-      }
-    },
-    "batchMerchantOfferChanges": {
-      "x-format": "Message",
-      "type": "object",
-      "description": "Contains all changes for a merchant",
-      "properties": {
-        "offers": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 1000,
-          "description": "Offers that need to be created or replaced",
-          "items": {
-            "$ref": "#/definitions/merchantOffer"
-          }
-        },
-        "deleted": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 1000,
-          "description": "Deleted offers",
-          "items": {
-            "$ref": "#/definitions/merchantOfferIdentifier"
-          }
-        },
-        "unpublished": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 1000,
-          "description": "Unpublished offers",
-          "items": {
-            "$ref": "#/definitions/merchantOfferIdentifier"
-          }
         }
       }
     },
@@ -2199,6 +2666,20 @@
           }
         }
       ]
+    },
+    "merchantOfferPaginatedList": {
+      "type": "object",
+      "properties": {
+        "paginationContinuationToken": {
+          "$ref": "#/definitions/paginationContinuationToken"
+        },
+        "merchantOffers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/merchantOffer"
+          }
+        }
+      }
     },
     "merchantOffer": {
       "allOf": [
@@ -2326,6 +2807,79 @@
         "Excluded",
         "OfferDisabled"
       ]
+    },
+    "reportGenerationStatusResponse": {
+      "description": "Report generation Status Response",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/reportGenerationStatus"
+        }
+      }
+    },
+    "generateReportResponse": {
+      "description": "Generate Report Response",
+      "type": "object",
+      "required": [
+        "marketplaceReportNumber"
+      ],
+      "properties": {
+        "marketplaceReportNumber": {
+          "$ref": "#/definitions/marketplaceReportNumber"
+        }
+      }
+    },
+    "reportGenerationStatus": {
+      "type": "string",
+      "enum": [
+        "NotStarted",
+        "InProgress",
+        "Success",
+        "Failed"
+      ],
+      "default": "NotStarted"
+    },
+    "feedPublicationStatusResponse": {
+      "description": "Publication Status Response",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/feedPublicationStatus"
+        }
+      }
+    },
+    "feedPublicationStatus": {
+      "type": "string",
+      "enum": [
+        "NotStarted",
+        "InProgress",
+        "Success",
+        "Failed"
+      ],
+      "default": "NotStarted"
+    },
+    "completePublicationRequest": {
+      "type": "object",
+      "required": [
+        "succeed"
+      ],
+      "properties": {
+        "succeed": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userErrorMessage"
+          }
+        }
+      }
     },
     "merchantEventPushed": {
       "x-exclude": true,
@@ -4024,13 +4578,13 @@
       "description": "The subscription status",
       "type": "string",
       "enum": [
-        "notRequested",
-        "requested",
-        "accepted",
-        "declined",
-        "blocked"
+        "NotRequested",
+        "Requested",
+        "Accepted",
+        "Declined",
+        "Blocked"
       ],
-      "example": "accepted"
+      "example": "Accepted"
     },
     "merchantMarketplaceSubscriptionRefusalReason": {
       "type": "string",
@@ -4052,9 +4606,9 @@
       "description": "The marketplace credential status",
       "type": "string",
       "enum": [
-        "notConfigured",
-        "configured",
-        "expired"
+        "NotConfigured",
+        "Configured",
+        "Expired"
       ],
       "example": "configured"
     },
@@ -4062,8 +4616,8 @@
       "description": "The marketplace shipping settings status",
       "type": "string",
       "enum": [
-        "notConfigured",
-        "configured"
+        "NotConfigured",
+        "Configured"
       ]
     },
     "marketplacePreparationRuleType": {
@@ -4162,16 +4716,16 @@
     "marketplacePricingRuleOperationType": {
       "type": "string",
       "enum": [
-        "plus",
-        "minus"
+        "Plus",
+        "Minus"
       ],
       "example": "plus"
     },
     "marketplacePricingRuleUnit": {
       "type": "string",
       "enum": [
-        "percent",
-        "amount"
+        "Percent",
+        "Amount"
       ],
       "example": "percent"
     },
@@ -4292,8 +4846,8 @@
     "marketplaceSubscriptionMessageSenderType": {
       "type": "string",
       "enum": [
-        "merchant",
-        "marketplace"
+        "Merchant",
+        "Marketplace"
       ],
       "example": "marketplace"
     },
@@ -4301,8 +4855,8 @@
       "description": "The Offer Importation status",
       "type": "string",
       "enum": [
-        "disabled",
-        "enabled"
+        "Disabled",
+        "Enabled"
       ],
       "example": "enabled"
     },
@@ -4322,22 +4876,6 @@
           "type": "object"
         }
       }
-    },
-    "marketplaceApiIntegrationStatus": {
-      "type": "string",
-      "enum": [
-        "Up",
-        "Down",
-        "Paused"
-      ]
-    },
-    "marketplaceStatus": {
-      "type": "string",
-      "description": "Indicate the status of the marketplace",
-      "enum": [
-        "PROD",
-        "TEST"
-      ]
     },
     "beezUPExecutionId": {
       "description": "The execution identifier",
@@ -4521,11 +5059,11 @@
       "description": "Indicate the item count per page",
       "type": "integer",
       "format": "int32",
-      "default": 100,
+      "default": 1000,
       "minimum": 25,
       "x-minimum": 25,
-      "maximum": 100,
-      "x-maximum": 100,
+      "maximum": 1000,
+      "x-maximum": 1000,
       "example": 100
     },
     "pageNumber": {
@@ -4666,6 +5204,10 @@
           "example": 1
         }
       }
+    },
+    "paginationContinuationToken": {
+      "type": "string",
+      "description": "Just a string value that will help to get the next page"
     },
     "paginationResult": {
       "x-exclude": true,
@@ -4873,7 +5415,7 @@
       "uniqueItems": true,
       "minItems": 0,
       "items": {
-        "$ref": "#/definitions/linkParameter2"
+        "$ref": "#/definitions/linkParameter3"
       }
     },
     "link2": {
@@ -5511,6 +6053,59 @@
           }
         }
       ]
+    },
+    "marketplaceReportNumber": {
+      "type": "string",
+      "description": "The marketplace report number. It's used by offer gateway when we ask report generation."
+    },
+    "webHookSubscription": {
+      "type": "object",
+      "required": [
+        "id",
+        "callBackUrl"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "callBackUrl": {
+          "$ref": "#/definitions/httpUrl"
+        }
+      }
+    },
+    "marketplaceApiIntegrationStatus": {
+      "type": "string",
+      "enum": [
+        "Up",
+        "Down",
+        "Paused"
+      ]
+    },
+    "marketplaceStatus": {
+      "type": "string",
+      "description": "Indicate the status of the marketplace",
+      "enum": [
+        "PROD",
+        "TEST"
+      ]
+    },
+    "propertyValueType": {
+      "type": "string",
+      "description": "The type of a property value",
+      "enum": [
+        "String",
+        "Integer",
+        "Decimal",
+        "Boolean"
+      ]
+    },
+    "propertyImportance": {
+      "type": "string",
+      "description": "The importance of a property",
+      "enum": [
+        "Optional",
+        "Required"
+      ]
     }
   },
   "responses": {
@@ -5570,6 +6165,12 @@
         "InvalidMarketplaceCodeException",
         "InvalidMerchantCodeException"
       ],
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "offerNotFound": {
+      "description": "When the requested offer is not found",
       "schema": {
         "$ref": "#/definitions/errorResponseMessage"
       }
@@ -5712,6 +6313,29 @@
       "default": false,
       "x-example": false
     },
+    "callBackUrlInQueryParameter": {
+      "name": "callBackUrl",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "x-format": "HttpUrl"
+    },
+    "credentialHeaderParameter": {
+      "name": "x-imn-credential",
+      "description": "The marketplace credential serialized in json encoded in base64 like the payload of a JWT",
+      "in": "header",
+      "type": "string",
+      "x-format": "MarketplaceApiCredential",
+      "required": true,
+      "x-base64": true
+    },
+    "skuPathParameter": {
+      "name": "sku",
+      "in": "path",
+      "type": "string",
+      "format": "Sku",
+      "required": true
+    },
     "correlationIdParameter": {
       "name": "correlationId",
       "in": "path",
@@ -5726,10 +6350,19 @@
       "in": "query",
       "required": true,
       "type": "integer",
-      "format": "int32",
+      "format": "PageNumber",
       "minimum": 1,
       "x-minimum": 1,
-      "x-example": 1
+      "x-example": 1,
+      "default": 1
+    },
+    "paginationContinuationTokenQueryStringParameter": {
+      "name": "paginationContinuationToken",
+      "description": "The pagination continuation token you want to get next page.",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "format": "PaginationContinuationToken"
     },
     "pageSizeQueryStringParameter": {
       "name": "pageSize",
@@ -5737,12 +6370,13 @@
       "in": "query",
       "required": true,
       "type": "integer",
-      "format": "int32",
+      "format": "PageSize",
       "minimum": 25,
       "x-minimum": 25,
-      "maximum": 100,
-      "x-maximum": 100,
-      "x-example": 25
+      "maximum": 1000,
+      "x-maximum": 1000,
+      "x-example": 25,
+      "default": 1000
     },
     "ifNoneMatchParameter": {
       "name": "If-None-Match",
