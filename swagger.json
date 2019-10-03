@@ -283,7 +283,7 @@
         ],
         "responses": {
           "202": {
-            "description": "The merchant offers have been received!"
+            "description": "The merchant offers events have been received!"
           },
           "400": {
             "$ref": "#/responses/offerBatchBadRequest"
@@ -405,7 +405,7 @@
         ],
         "responses": {
           "202": {
-            "description": "The merchant offers changes have been received"
+            "description": "The merchant offers events been received"
           },
           "400": {
             "$ref": "#/responses/offerBatchBadRequest"
