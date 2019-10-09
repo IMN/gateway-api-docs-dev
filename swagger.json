@@ -17,7 +17,7 @@
     }
   },
   "host": "api.imn.io",
-  "x-IMN-api-ops": {
+  "x-beezup-ops": {
     "repo": "IMN",
     "codeGenType": "webapi",
     "apiName": "GatewayMerchantsV1",
@@ -810,37 +810,6 @@
       }
     }
   },
-  "externalDocs": {
-    "description": "Find the documentation for IMN's API here",
-    "url": "https://api-docs.imn.io/"
-  },
-  "securityDefinitions": {
-    "api_key": {
-      "type": "apiKey",
-      "in": "header",
-      "name": "Ocp-Apim-Subscription-Key"
-    }
-  },
-  "x-tagGroups": [
-    {
-      "name": "Gateway API - Merchants",
-      "tags": [
-        "Gateway API - Merchants - Global"
-      ]
-    },
-    {
-      "name": "Gateway API - Offers",
-      "tags": [
-        "Gateway API - Offers - Global"
-      ]
-    },
-    {
-      "name": "Gateway API - Orders",
-      "tags": [
-        "Gateway API - Orders - Global"
-      ]
-    }
-  ],
   "definitions": {
     "beezUPOrderId": {
       "description": "The BeezUP Order identifier",
@@ -4658,14 +4627,11 @@
           "$ref": "#/definitions/marketplacePreparationSetting"
         },
         "deliverySettings": {
-          "$ref": "#/definitions/marketplaceDeliverySettingList"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/marketplaceDeliverySetting"
+          }
         }
-      }
-    },
-    "marketplaceDeliverySettingList": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/marketplaceDeliverySetting"
       }
     },
     "marketplaceDeliverySetting": {
@@ -5409,15 +5375,6 @@
         "$ref": "#/definitions/linkParameter3"
       }
     },
-    "linkParameter2Types": {
-      "x-exclude": true,
-      "type": "array",
-      "uniqueItems": true,
-      "minItems": 0,
-      "items": {
-        "$ref": "#/definitions/linkParameter3"
-      }
-    },
     "link2": {
       "x-exclude": true,
       "type": "object",
@@ -5441,7 +5398,13 @@
           "$ref": "#/definitions/httpMethod"
         },
         "parameters": {
-          "$ref": "#/definitions/linkParameter2Types"
+          "x-exclude": true,
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 0,
+          "items": {
+            "$ref": "#/definitions/linkParameter2"
+          }
         },
         "info": {
           "$ref": "#/definitions/infoSummaries"
@@ -5619,7 +5582,6 @@
           "$ref": "#/definitions/parameterType"
         },
         "lovLink": {
-          "description": "This parameter expect the values indicated in this list of values.",
           "$ref": "#/definitions/LOVLink2"
         },
         "lovRequired": {
@@ -6108,6 +6070,37 @@
       ]
     }
   },
+  "externalDocs": {
+    "description": "Find the documentation for IMN's API here",
+    "url": "https://api-docs.imn.io/"
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Ocp-Apim-Subscription-Key"
+    }
+  },
+  "x-tagGroups": [
+    {
+      "name": "Gateway API - Merchants",
+      "tags": [
+        "Gateway API - Merchants - Global"
+      ]
+    },
+    {
+      "name": "Gateway API - Offers",
+      "tags": [
+        "Gateway API - Offers - Global"
+      ]
+    },
+    {
+      "name": "Gateway API - Orders",
+      "tags": [
+        "Gateway API - Orders - Global"
+      ]
+    }
+  ],
   "responses": {
     "orderBatchBadRequest": {
       "description": "In case there is an error like:\n- ValidationException\n- DuplicateOrderOperationException\n- InvalidMerchantCodeException\n- OrderManagementDisabledException\n",
@@ -6353,8 +6346,7 @@
       "format": "PageNumber",
       "minimum": 1,
       "x-minimum": 1,
-      "x-example": 1,
-      "default": 1
+      "x-example": 1
     },
     "paginationContinuationTokenQueryStringParameter": {
       "name": "paginationContinuationToken",
@@ -6375,8 +6367,7 @@
       "x-minimum": 25,
       "maximum": 1000,
       "x-maximum": 1000,
-      "x-example": 25,
-      "default": 1000
+      "x-example": 25
     },
     "ifNoneMatchParameter": {
       "name": "If-None-Match",
