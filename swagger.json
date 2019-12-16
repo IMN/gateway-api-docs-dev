@@ -18,29 +18,6 @@
   },
   "host": "api.imn.io",
   "basePath": "",
-  "x-beezup-ops": {
-    "repo": "IMN",
-    "codeGenType": "webapi",
-    "apiName": "GatewayMerchantsV1",
-    "appRoot": "IMN.ADPT.MER.WebService",
-    "namespace": "IMN.ADPT.MER.WebService",
-    "applicationShortName": "MER.WS",
-    "useBeezUPFrameworkVersion2": "true",
-    "comment": "No change. Just server side generation.\n",
-    "using": [
-      "IMN.Schemas",
-      "IMN.Exceptions",
-      "IMN.MER.Schemas",
-      "IMN.MER.Exceptions",
-      "IMN.MER.Events"
-    ],
-    "references": [
-      "IMN.Exceptions",
-      "IMN.MER.Schemas",
-      "IMN.MER.Exceptions",
-      "IMN.MER.Events"
-    ]
-  },
   "x-basePath": "/gateway/merchants/v1",
   "schemes": [
     "https"
