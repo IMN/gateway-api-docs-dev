@@ -18,7 +18,6 @@
   },
   "host": "api.imn.io",
   "basePath": "",
-  "x-basePath": "/gateway/merchants/v1",
   "schemes": [
     "https"
   ],
@@ -42,7 +41,6 @@
       "x-displayName": "Global"
     }
   ],
-  "x-azure-api-id": "GatewayMerchantsV1",
   "paths": {
     "/gateway/merchants/v1/{marketplaceCode}/ping": {
       "get": {
