@@ -2708,6 +2708,9 @@
         },
         "ecommerceSoftwareName": {
           "$ref": "#/definitions/ecommerceSoftwareName"
+        },
+        "ownerUserId": {
+          "$ref": "#/definitions/userId"
         }
       }
     },
@@ -3485,7 +3488,8 @@
             "eventType",
             "userId",
             "userEmail",
-            "userIPAddress"
+            "userIPAddress",
+            "ownerUserId"
           ],
           "properties": {
             "userId": {
@@ -3496,6 +3500,9 @@
             },
             "userIPAddress": {
               "type": "string"
+            },
+            "ownerUserId": {
+              "$ref": "#/definitions/userId"
             }
           }
         }
