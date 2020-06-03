@@ -96,7 +96,7 @@
           {
             "name": "request",
             "in": "body",
-            "required": "true",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/marketplaceApiCredential"
             }
@@ -135,7 +135,7 @@
           {
             "name": "request",
             "in": "body",
-            "required": "true",
+            "required": true,
             "schema": {
               "type": "array",
               "items": {
@@ -342,7 +342,7 @@
           {
             "name": "request",
             "in": "body",
-            "required": "true",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/completePublicationRequest"
             }
@@ -591,7 +591,7 @@
           {
             "name": "subscriptionId",
             "in": "path",
-            "required": "true",
+            "required": true,
             "type": "string"
           }
         ],
@@ -710,7 +710,7 @@
           {
             "name": "marketplaceReportNumber",
             "in": "query",
-            "required": "true",
+            "required": true,
             "type": "string"
           }
         ],
@@ -775,7 +775,7 @@
             "name": "marketplaceReportNumber",
             "description": "In some case, the marketplace has to generate a report to get access to the offer list. In that case we will have to send the marketplace report number.",
             "in": "query",
-            "required": "false",
+            "required": false,
             "type": "string"
           }
         ],
@@ -937,7 +937,7 @@
           {
             "name": "request",
             "in": "body",
-            "required": "true",
+            "required": true,
             "schema": {
               "type": "array",
               "minItems": "1",
@@ -1070,7 +1070,7 @@
       }
     },
     "errorResponseMessage": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "errors"
@@ -1086,7 +1086,7 @@
       }
     },
     "merchantEventPushed": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "discriminator": "eventType",
       "required": [
@@ -1097,7 +1097,7 @@
           "$ref": "#/definitions/merchantCode"
         },
         "eventType": {
-          "x-exclude": "true",
+          "x-exclude": true,
           "type": "string"
         }
       }
@@ -1113,7 +1113,7 @@
       ]
     },
     "userErrorMessage": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "code",
@@ -1147,27 +1147,27 @@
       "example": "MLT01"
     },
     "docUrl": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "format": "uri",
       "description": "The documentation related to this operation.",
       "example": "https://api-docs.imn.io/#operation/EnableChannelCatalog"
     },
     "errorCode": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "description": "the error code. The error code can be a pattern containing the argument's name",
       "example": "CatalogImportationAlreadyInProgress(ExecutionId currentCatalogImportationId)"
     },
     "cultureName": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "description": "If the error is translated, the culture name will be indicated",
       "example": "en",
       "x-lov": "Go2CultureName"
     },
     "userErrorMessageArguments": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "description": "a dictionary string/object",
       "additionalProperties": {
@@ -1175,7 +1175,7 @@
       }
     },
     "merchantOfferEventBase": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "discriminator": "eventType",
       "required": [
@@ -1348,7 +1348,7 @@
       "default": "NotStarted"
     },
     "httpUrl": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The URL <a href=\"https://en.wikipedia.org/wiki/URL\">https://en.wikipedia.org/wiki/URL</a>",
       "type": "string",
       "pattern": "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$",
@@ -1404,7 +1404,7 @@
       "description": "The marketplace in charge of the delivery on this offer."
     },
     "price": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "number",
       "format": "decimal",
       "description": "The offer price of a product, or of a price component when attached to PriceSpecification and its subtypes. http://schema.org/price"
@@ -1492,7 +1492,7 @@
       "maxLength": "50"
     },
     "orderChangeEventBase": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "allOf": [
         {
           "type": "object",
@@ -1607,7 +1607,7 @@
       }
     },
     "userId": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "format": "guid",
       "description": "The user identifier",
       "type": "string",
@@ -1618,7 +1618,7 @@
       "description": "The name of the user who did the order change"
     },
     "email": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The email",
       "type": "string",
       "format": "email",
@@ -1636,7 +1636,7 @@
       "example": "api"
     },
     "paginationResult": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "entryCount",
@@ -1649,19 +1649,19 @@
           "type": "integer",
           "description": "The entry count currently returned",
           "example": "25",
-          "minimum": "0"
+          "minimum": 0
         },
         "pageCount": {
           "type": "integer",
           "description": "The page count",
           "example": "38",
-          "minimum": "0"
+          "minimum": 0
         },
         "totalEntryCount": {
           "type": "integer",
           "description": "The total entry count",
           "example": "943",
-          "minimum": "0"
+          "minimum": 0
         },
         "links": {
           "$ref": "#/definitions/paginationResultLinks"
@@ -1891,7 +1891,7 @@
       "example": "CDISCOUNT12345"
     },
     "paginationResultLinks": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The navigation links 'first', 'last', 'next', 'previous'",
       "type": "object",
       "required": [
@@ -2104,7 +2104,7 @@
       }
     },
     "link3": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "href"
@@ -2153,7 +2153,7 @@
       }
     },
     "currencyCode": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The currency code <a href=\"https://en.wikipedia.org/wiki/ISO_4217\">(ISO 4217)</a>\n",
       "type": "string",
       "pattern": "^[A-Z]{3}$",
@@ -2166,19 +2166,19 @@
       "example": "+33000000042"
     },
     "href": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "example": "/merchant/orders/v1/{marketplaceCode}/{IMNOrderId}",
       "description": "Indicate the relative uri for this link"
     },
     "operationId": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "description": "The operationId to call.",
       "example": "GetOrder"
     },
     "httpMethod": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "enum": [
         "GET",
@@ -2193,7 +2193,7 @@
       "description": "Indicate the http method to use on this link"
     },
     "linkParameter3Types": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/linkParameter3"
@@ -2229,7 +2229,7 @@
       }
     },
     "linkParameter3": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "in"
@@ -2413,7 +2413,7 @@
       "example": "Monroe"
     },
     "parameterIn": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "string",
       "description": "* path: if the parameter must be pass in the path uri\n* header: if the parameter must be passed in http header\n* query: if the parameter must be passed in querystring\n* body: if the parameter must be passed in the body\n* file: if the parameter must be passed in a multipart/form-data (https://swagger.io/docs/specification/2-0/file-upload/)\n",
       "example": "path",
@@ -2426,7 +2426,7 @@
       ]
     },
     "LOVLink3": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "Describe the way you have to follow to get access to the LOV",
       "type": "object",
       "required": [
@@ -2450,7 +2450,7 @@
       "example": "*.-api$"
     },
     "linkParameterProperty3": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "type": "object",
       "required": [
         "type"
@@ -2514,7 +2514,7 @@
       }
     },
     "parameterType": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The value type of the parameter",
       "type": "string",
       "enum": [
@@ -2715,7 +2715,7 @@
       }
     },
     "merchantMarketplaceEventBase": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "allOf": [
         {
           "$ref": "#/definitions/merchantEventPushed"
@@ -4060,7 +4060,7 @@
       ]
     },
     "processingStatus": {
-      "x-exclude": "true",
+      "x-exclude": true,
       "description": "The processing status of an operation",
       "type": "string",
       "enum": [
@@ -4087,7 +4087,7 @@
       "format": "MarketplaceCode",
       "name": "marketplaceCode",
       "in": "path",
-      "required": "true",
+      "required": true,
       "type": "string",
       "description": "The marketplace code"
     },
@@ -4095,7 +4095,7 @@
       "format": "MerchantCode",
       "name": "merchantCode",
       "in": "path",
-      "required": "true",
+      "required": true,
       "type": "string",
       "description": "The merchant code"
     },
@@ -4104,7 +4104,7 @@
       "in": "path",
       "type": "string",
       "format": "CorrelationId",
-      "required": "true",
+      "required": true,
       "description": "It's the guid corresponding to the operation.\n"
     },
     "credentialHeaderParameter": {
@@ -4113,13 +4113,13 @@
       "in": "header",
       "type": "string",
       "x-format": "MarketplaceApiCredential",
-      "required": "true",
+      "required": true,
       "x-base64": "true"
     },
     "callBackUrlInQueryParameter": {
       "name": "callBackUrl",
       "in": "query",
-      "required": "true",
+      "required": true,
       "type": "string",
       "x-format": "HttpUrl"
     },
@@ -4127,7 +4127,7 @@
       "name": "paginationContinuationToken",
       "description": "The pagination continuation token you want to get next page.",
       "in": "query",
-      "required": "false",
+      "required": false,
       "type": "string",
       "format": "PaginationContinuationToken"
     },
@@ -4136,7 +4136,7 @@
       "in": "path",
       "type": "string",
       "format": "Sku",
-      "required": "true",
+      "required": true,
       "description": "The Stock Keeping Unit (SKU), i.e. a merchant-specific identifier for a product or service, or the product to which the offer refers. http://schema.org/sku",
       "maxLength": "50"
     },
@@ -4144,10 +4144,10 @@
       "name": "pageNumber",
       "description": "The page number you want to get",
       "in": "query",
-      "required": "true",
+      "required": true,
       "type": "integer",
       "format": "PageNumber",
-      "minimum": "1",
+      "minimum": 1,
       "x-minimum": "1",
       "x-example": "1"
     },
@@ -4155,10 +4155,10 @@
       "name": "pageSize",
       "description": "The entry count you want to get",
       "in": "query",
-      "required": "true",
+      "required": true,
       "type": "integer",
       "format": "PageSize",
-      "minimum": "25",
+      "minimum": 25,
       "x-minimum": "25",
       "maximum": "1000",
       "x-maximum": "1000",
@@ -4168,7 +4168,7 @@
       "description": "The MKP Order identifier",
       "name": "marketplaceOrderId",
       "in": "path",
-      "required": "true",
+      "required": true,
       "type": "string",
       "format": "MarketplaceOrderId",
       "x-example": "CDISCOUNT12345"
