@@ -202,34 +202,6 @@
         }
       }
     },
-    "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/purge": {
-      "post": {
-        "tags": [
-          "Gateway API - Offers - Global"
-        ],
-        "summary": "Purge all merchant offers",
-        "operationId": "PurgeMerchantOfferEvents",
-        "parameters": [
-          {
-            "$ref": "#/parameters/marketplaceCodeParameter"
-          },
-          {
-            "$ref": "#/parameters/merchantCodeParameter"
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "The merchant offers purge request have been accepted"
-          },
-          "400": {
-            "$ref": "#/responses/offerBatchBadRequest"
-          },
-          "default": {
-            "$ref": "#/responses/GeneralError"
-          }
-        }
-      }
-    },
     "/gateway/offers/v1/{marketplaceCode}/{merchantCode}/publications/{correlationId}/start": {
       "post": {
         "tags": [
@@ -1273,6 +1245,9 @@
       ],
       "properties": {
         "eventType": {
+          "type": "string"
+        },
+        "partitionKey": {
           "type": "string"
         }
       }
