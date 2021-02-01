@@ -1022,6 +1022,7 @@
         ],
         "summary": "Get order list",
         "operationId": "GetOrderList",
+        "description": "This operation will be useful to diagnosticate synchronization issue between the marketplace and IMN",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -1039,7 +1040,8 @@
             "name": "marketplaceLastModificationUtcDate",
             "in": "query",
             "type": "string",
-            "format": "DateTime"
+            "required": false,
+            "format": "date-time"
           }
         ],
         "responses": {
@@ -1048,6 +1050,9 @@
             "schema": {
               "$ref": "#/definitions/orderMarketplaceInfoPaginatedList"
             }
+          },
+          "404": {
+            "$ref": "#/responses/merchantOrMarketplaceNotFound"
           },
           "429": {
             "$ref": "#/responses/429_TooManyRequests"
@@ -1065,6 +1070,7 @@
         ],
         "summary": "Get order",
         "operationId": "GetOrder",
+        "description": "This operation will be useful to diagnosticate synchronization issue between the marketplace and IMN",
         "parameters": [
           {
             "$ref": "#/parameters/marketplaceCodeParameter"
@@ -1088,6 +1094,95 @@
           },
           "429": {
             "$ref": "#/responses/429_TooManyRequests"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/{merchantCode}/{marketplaceOrderId}/reharvest": {
+      "post": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Reharvest order",
+        "description": "This operation should be called to temporarily resolve a synchronization issue between the marketplace an IMN",
+        "operationId": "ReharvestOrder",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/marketplaceOrderIdParameter"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The reharvest order request has been accepted"
+          },
+          "404": {
+            "$ref": "#/responses/orderNotFound"
+          },
+          "429": {
+            "$ref": "#/responses/429_TooManyRequests"
+          },
+          "502": {
+            "$ref": "#/responses/GeneralError"
+          },
+          "default": {
+            "$ref": "#/responses/GeneralError"
+          }
+        }
+      }
+    },
+    "/gateway/orders/v1/{marketplaceCode}/{merchantCode}/reharvest": {
+      "post": {
+        "tags": [
+          "Gateway API - Orders - Global"
+        ],
+        "summary": "Reharvest orders",
+        "description": "This operation should be called to temporarily resolve a synchronization issue between the marketplace an IMN. This operation will automatically push to IMN the orders related to a merchant since",
+        "operationId": "ReharvestOrders",
+        "parameters": [
+          {
+            "$ref": "#/parameters/marketplaceCodeParameter"
+          },
+          {
+            "$ref": "#/parameters/merchantCodeParameter"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "If implemented, will allow IMN to indicate since which order purchase utc date we will like to be synchronized. Default is 30 days ago.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "description": "If implemented, will allow IMN to indicate until which order purchase utc date we will like to be synchronized. Default is utcnow",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The reharvest orders request has been accepted"
+          },
+          "404": {
+            "$ref": "#/responses/merchantOrMarketplaceNotFound"
+          },
+          "429": {
+            "$ref": "#/responses/429_TooManyRequests"
+          },
+          "502": {
+            "$ref": "#/responses/GeneralError"
           },
           "default": {
             "$ref": "#/responses/GeneralError"
@@ -4264,6 +4359,16 @@
     },
     "offerNotFound": {
       "description": "When the requested offer is not found",
+      "schema": {
+        "$ref": "#/definitions/errorResponseMessage"
+      }
+    },
+    "merchantOrMarketplaceNotFound": {
+      "description": "The merchant code or marketplace code is not found.",
+      "x-exceptions": [
+        "MarketplaceCodeNotFoundException",
+        "MerchantCodeNotFoundException"
+      ],
       "schema": {
         "$ref": "#/definitions/errorResponseMessage"
       }
