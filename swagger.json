@@ -1341,9 +1341,6 @@
       "properties": {
         "eventType": {
           "type": "string"
-        },
-        "partitionKey": {
-          "type": "string"
         }
       }
     },
@@ -2730,6 +2727,86 @@
         }
       ]
     },
+    "merchantOfferPublicationSucceed": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        }
+      ]
+    },
+    "merchantOfferUnpublicationSucceed": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        }
+      ]
+    },
+    "merchantOfferPublicationFailed": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason"
+          ],
+          "properties": {
+            "reason": {
+              "$ref": "#/definitions/publicationFailureReasonCode"
+            },
+            "additionalInformation": {
+              "description": "If the publication failure reason is undefined, please provide the explanation here",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "merchantOfferUnpublicationFailed": {
+      "x-format": "Event",
+      "allOf": [
+        {
+          "$ref": "#/definitions/merchantOfferEventBase"
+        },
+        {
+          "$ref": "#/definitions/merchantOfferIdentifier"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reason"
+          ],
+          "properties": {
+            "reason": {
+              "$ref": "#/definitions/unpublicationFailureReasonCode"
+            },
+            "additionalInformation": {
+              "description": "If the unpublication failure reason is undefined, please provide the explanation here",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
+    },
     "merchantOfferNotImported": {
       "x-format": "Event",
       "description": "Useful for reporting to explain why this offer has not been imported. NOT USED FOR THE MOMENT.",
@@ -2760,6 +2837,29 @@
         "MerchantMarketplaceOfferPublicationDisabled",
         "Excluded",
         "OfferDisabled"
+      ]
+    },
+    "publicationFailureReasonCode": {
+      "type": "string",
+      "enum": [
+        "Undefined",
+        "UnknownEAN",
+        "PriceTooHigh",
+        "PriceTooLow",
+        "PriceTooLowOrTooHigh",
+        "InconsistentDeliveryMethod",
+        "InconsistentEANAndSkuCouple",
+        "VariationCreationRequired",
+        "ForbiddenProduct",
+        "IncorrectEAN",
+        "IncorrectSKU",
+        "InconsistentInventoryLevelVsCurrentOrders"
+      ]
+    },
+    "unpublicationFailureReasonCode": {
+      "type": "string",
+      "enum": [
+        "Undefined"
       ]
     },
     "merchantOfferNoneImportationReason": {
