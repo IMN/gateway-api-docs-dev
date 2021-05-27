@@ -1429,7 +1429,7 @@
     "merchantOffer": {
       "allOf": [
         {
-          "$ref": "#/definitions/merchantOfferIdentifier"
+          "$ref": "#/definitions/offer"
         },
         {
           "type": "object",
@@ -1446,49 +1446,8 @@
             "lastUpdateUtcDate"
           ],
           "properties": {
-            "gtin": {
-              "$ref": "#/definitions/gtin"
-            },
-            "itemCondition": {
-              "$ref": "#/definitions/itemCondition"
-            },
-            "fulfilledBy": {
-              "$ref": "#/definitions/fulfilledBy"
-            },
-            "price": {
-              "$ref": "#/definitions/price"
-            },
-            "priceCurrency": {
-              "$ref": "#/definitions/priceCurrency"
-            },
-            "minPrice": {
-              "$ref": "#/definitions/minPrice"
-            },
-            "discount": {
-              "$ref": "#/definitions/priceSpecification"
-            },
-            "deliveryLeadTime": {
-              "$ref": "#/definitions/deliveryLeadTime"
-            },
-            "inventoryLevel": {
-              "$ref": "#/definitions/inventoryLevel"
-            },
-            "defaultDeliveryMethod": {
-              "$ref": "#/definitions/deliveryMethod"
-            },
-            "deliverySpecifications": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/deliverySpecification"
-              }
-            },
-            "lastUpdateUtcDate": {
-              "type": "string",
-              "format": "date-time",
-              "example": "2018-02-24T14:24:35"
-            },
-            "sourceMarketplaceCode": {
-              "$ref": "#/definitions/marketplaceCode"
+            "merchantCode": {
+              "$ref": "#/definitions/merchantCode"
             }
           }
         }
@@ -1530,18 +1489,66 @@
       "type": "string",
       "description": "Just a string value that will help to get the next page"
     },
-    "merchantOfferIdentifier": {
+    "offer": {
       "type": "object",
+      "description": "The defaultDeliveryMethod is required if the deliverySpecifications is fulfilled",
       "required": [
-        "merchantCode",
-        "sku"
+        "sku",
+        "gtin",
+        "itemCondition",
+        "price",
+        "priceCurrency",
+        "deliveryLeadTime",
+        "inventoryLevel",
+        "lastUpdateUtcDate"
       ],
       "properties": {
-        "merchantCode": {
-          "$ref": "#/definitions/merchantCode"
-        },
         "sku": {
           "$ref": "#/definitions/sku"
+        },
+        "gtin": {
+          "$ref": "#/definitions/gtin"
+        },
+        "itemCondition": {
+          "$ref": "#/definitions/itemCondition"
+        },
+        "fulfilledBy": {
+          "$ref": "#/definitions/fulfilledBy"
+        },
+        "price": {
+          "$ref": "#/definitions/price"
+        },
+        "priceCurrency": {
+          "$ref": "#/definitions/priceCurrency"
+        },
+        "minPrice": {
+          "$ref": "#/definitions/minPrice"
+        },
+        "discount": {
+          "$ref": "#/definitions/priceSpecification"
+        },
+        "deliveryLeadTime": {
+          "$ref": "#/definitions/deliveryLeadTime"
+        },
+        "inventoryLevel": {
+          "$ref": "#/definitions/inventoryLevel"
+        },
+        "defaultDeliveryMethod": {
+          "$ref": "#/definitions/deliveryMethod"
+        },
+        "deliverySpecifications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/deliverySpecification"
+          }
+        },
+        "lastUpdateUtcDate": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2018-02-24T14:24:35"
+        },
+        "sourceMarketplaceCode": {
+          "$ref": "#/definitions/marketplaceCode"
         }
       }
     },
@@ -1617,6 +1624,11 @@
         }
       }
     },
+    "sku": {
+      "type": "string",
+      "description": "The Stock Keeping Unit (SKU), i.e. a merchant-specific identifier for a product or service, or the product to which the offer refers. http://schema.org/sku",
+      "maxLength": 50
+    },
     "gtin": {
       "type": "string",
       "description": "Global Trade Item Number (GTIN) of the item.\nSupported values:\n\n- UPC (in North America / GTIN-12)\n12-digit number like 323456789012\n8-digit UPC-E codes should be converted to 12-digit codes\n- EAN (in Europe / GTIN-13)\n13-digit number like 3001234567892\n- JAN (in Japan / GTIN-13)\n8 or 13-digit number like 49123456 or 4901234567894\n- ISBN (for books)\n10 or 13-digit number like 1455582344 or 978-1455582341. If you have both, only include the 13-digit number. ISBN-10 are deprecated and should be converted to ISBN-13\n- ITF-14 (for multipacks / GTIN-14)\n14-digit number like 10856435001702\n\nSchema.org property:\n- [Offer.gtin8](http://schema.org/gtin8)\n- [Offer.gtin12](http://schema.org/gtin12)\n- [Offer.gtin13](http://schema.org/gtin13)\n- [Offer.gtin14](http://schema.org/gtin14)\n- [Offer.isbn](http://schema.org/isbn)\n",
@@ -1642,11 +1654,6 @@
       "type": "string",
       "format": "date-time",
       "description": "The date after when the item is not valid. For example the end of an offer, salary period, or a period of opening hours. http://schema.org/validThrough"
-    },
-    "sku": {
-      "type": "string",
-      "description": "The Stock Keeping Unit (SKU), i.e. a merchant-specific identifier for a product or service, or the product to which the offer refers. http://schema.org/sku",
-      "maxLength": 50
     },
     "orderChangeEventBase": {
       "x-exclude": true,
@@ -2727,86 +2734,6 @@
         }
       ]
     },
-    "merchantOfferPublicationSucceed": {
-      "x-format": "Event",
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantOfferEventBase"
-        },
-        {
-          "$ref": "#/definitions/merchantOfferIdentifier"
-        }
-      ]
-    },
-    "merchantOfferUnpublicationSucceed": {
-      "x-format": "Event",
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantOfferEventBase"
-        },
-        {
-          "$ref": "#/definitions/merchantOfferIdentifier"
-        }
-      ]
-    },
-    "merchantOfferPublicationFailed": {
-      "x-format": "Event",
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantOfferEventBase"
-        },
-        {
-          "$ref": "#/definitions/merchantOfferIdentifier"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reason"
-          ],
-          "properties": {
-            "reason": {
-              "$ref": "#/definitions/publicationFailureReasonCode"
-            },
-            "additionalInformation": {
-              "description": "If the publication failure reason is undefined, please provide the explanation here",
-              "type": "object",
-              "additionalProperties": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      ]
-    },
-    "merchantOfferUnpublicationFailed": {
-      "x-format": "Event",
-      "allOf": [
-        {
-          "$ref": "#/definitions/merchantOfferEventBase"
-        },
-        {
-          "$ref": "#/definitions/merchantOfferIdentifier"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reason"
-          ],
-          "properties": {
-            "reason": {
-              "$ref": "#/definitions/unpublicationFailureReasonCode"
-            },
-            "additionalInformation": {
-              "description": "If the unpublication failure reason is undefined, please provide the explanation here",
-              "type": "object",
-              "additionalProperties": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      ]
-    },
     "merchantOfferNotImported": {
       "x-format": "Event",
       "description": "Useful for reporting to explain why this offer has not been imported. NOT USED FOR THE MOMENT.",
@@ -2830,6 +2757,21 @@
         }
       ]
     },
+    "merchantOfferIdentifier": {
+      "type": "object",
+      "required": [
+        "merchantCode",
+        "sku"
+      ],
+      "properties": {
+        "merchantCode": {
+          "$ref": "#/definitions/merchantCode"
+        },
+        "sku": {
+          "$ref": "#/definitions/sku"
+        }
+      }
+    },
     "merchantOfferUnpublicationReasonCode": {
       "type": "string",
       "description": "The reason of the unpublication of an offer",
@@ -2837,31 +2779,6 @@
         "MerchantMarketplaceOfferPublicationDisabled",
         "Excluded",
         "OfferDisabled"
-      ]
-    },
-    "publicationFailureReasonCode": {
-      "type": "string",
-      "enum": [
-        "Undefined",
-        "MarketplaceUndefinedIsssue",
-        "UnknownEAN",
-        "PriceTooHigh",
-        "PriceTooLow",
-        "PriceTooLowOrTooHigh",
-        "InconsistentDeliveryMethod",
-        "InconsistentEANAndSkuCouple",
-        "VariationCreationRequired",
-        "ForbiddenProduct",
-        "IncorrectEAN",
-        "IncorrectSKU",
-        "InconsistentInventoryLevelVsCurrentOrders"
-      ]
-    },
-    "unpublicationFailureReasonCode": {
-      "type": "string",
-      "enum": [
-        "Undefined",
-        "MarketplaceUndefinedIsssue"
       ]
     },
     "merchantOfferNoneImportationReason": {
