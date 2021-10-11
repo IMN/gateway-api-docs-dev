@@ -4333,7 +4333,24 @@
         "Marktanlieferung",
         "Rhenus",
         "Schenker",
-        "SpeditionGuettler"
+        "SpeditionGuettler",
+        "WishPost",
+        "DHLExpress",
+        "AsendiaHK",
+        "DBSchenker",
+        "DHLecommerceasia",
+        "Yunexpress",
+        "Chronofresh",
+        "CANDQ",
+        "SEUR",
+        "CITYPOSTHRP",
+        "INSTALLO",
+        "YDH",
+        "ZUST",
+        "CzechPost",
+        "DSV",
+        "FlytExpress",
+        "ARCO"
       ]
     },
     "trackingNumber": {
