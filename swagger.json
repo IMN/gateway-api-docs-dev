@@ -1660,7 +1660,7 @@
       "allOf": [
         {
           "type": "object",
-          "discriminator": "eventName",
+          "discriminator": "eventType",
           "required": [
             "order",
             "userId",
