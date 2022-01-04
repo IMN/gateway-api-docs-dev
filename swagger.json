@@ -2778,7 +2778,8 @@
       "enum": [
         "MerchantMarketplaceOfferPublicationDisabled",
         "Excluded",
-        "OfferDisabled"
+        "OfferDisabled",
+        "MarketplaceItemConditionExcluded"
       ]
     },
     "merchantOfferNoneImportationReason": {
