@@ -2779,7 +2779,8 @@
         "MerchantMarketplaceOfferPublicationDisabled",
         "Excluded",
         "OfferDisabled",
-        "MarketplaceItemConditionExcluded"
+        "MarketplaceItemConditionExcluded",
+        "MarketplaceSkuTooLongExcluded"
       ]
     },
     "merchantOfferNoneImportationReason": {
